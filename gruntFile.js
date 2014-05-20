@@ -38,7 +38,15 @@ module.exports = function(grunt) {
   // HACK TO MAKE TRAVIS WORK
   var testConfig = function(configFile, customOptions) {
     var options = { configFile: configFile, singleRun: true };
-    var travisOptions = process.env.TRAVIS && { browsers: ['Firefox', 'PhantomJS'], reporters: ['dots'] };
+    var travisOptions = process.env.TRAVIS && {
+      browsers: ['Firefox', 'PhantomJS'],
+      reporters: ['dots', 'coverage'],
+      preprocessors: { 'src/*.js': ['coverage'] },
+      coverageReporter: {
+        type: 'lcov',
+        dir: 'coverage/'
+      },
+    };
     return grunt.util._.extend(options, customOptions, travisOptions);
   };
   //
@@ -67,6 +75,16 @@ module.exports = function(grunt) {
       continuous: { options: { keepalive: false } }
     },
 
+    coveralls: {
+      options: {
+        coverage_dir: 'coverage/'
+        // debug: true
+        // dryRun: true,
+        // force: true,
+        // recursive: true
+      }
+    },
+
     karma: {
       unit: testConfig('test/karma.conf.js'),
       server: {configFile: 'test/karma.conf.js'},
@@ -76,7 +94,7 @@ module.exports = function(grunt) {
         reporters: ['progress', 'coverage'],
         preprocessors: { 'src/*.js': ['coverage'] },
         coverageReporter: {
-          type : 'html',
+          type : 'lcov',
           dir : 'coverage/'
         },
         singleRun: true
